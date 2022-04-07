@@ -1,0 +1,37 @@
+$date
+	Thu Apr  7 20:05:02 2022
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module t_multiplier $end
+$var wire 8 ! C [7:0] $end
+$var reg 4 " A [3:0] $end
+$var reg 4 # B [3:0] $end
+$scope module M1 $end
+$var wire 4 $ A [3:0] $end
+$var wire 4 % B [3:0] $end
+$var wire 8 & C [7:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+b0 &
+b0 %
+b0 $
+b0 #
+b0 "
+b0 !
+$end
+#100
+b10101 !
+b10101 &
+b111 #
+b111 %
+b11 "
+b11 $
+#200
