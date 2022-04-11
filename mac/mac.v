@@ -12,7 +12,7 @@ reg signed [31:0] reg_result_tmp_2;
 reg signed [31:0] reg_result_tmp_3;
 reg [7:0] reg_protect;
 
-  always@(posedge clk or negedge reset_n) begin
+  always@(negedge clk or negedge reset_n) begin
     if(~reset_n) begin
       reg_result_tmp_1 <= 32'b0;
       reg_result_tmp_2 <= 32'b0;
