@@ -1,6 +1,6 @@
 module	t_multiplier;
   reg signed	[3:0] A, B;
-  wire signed [7:0]	C;
+  wire signed [10:0]	C;
 
   multiplier M1(A, B, C);
 
@@ -9,7 +9,7 @@ module	t_multiplier;
     $dumpfile("multiplier.vcd");
     $dumpvars;
     A=4'b0; B=4'b0;
-    #100 A=4'b0011; B=4'b0111;
+    #100 A=4'b0111; B=4'b0111;
   end
 
   initial #200 $finish;
