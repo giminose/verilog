@@ -10,7 +10,6 @@ output reg [7:0] protect;
 reg signed [39:0] reg_result_tmp_1;
 reg signed [39:0] reg_result_tmp_2;
 reg signed [39:0] reg_stall;
-reg [7:0] reg_protect;
 
   always@(negedge clk or negedge reset_n) begin
     if(~reset_n) begin
@@ -50,27 +49,27 @@ reg [7:0] reg_protect;
           reg_result_tmp_1 = 39'b0;
         end
         3'b101: begin
-          {reg_result_tmp_1[3:0],reg_result_tmp_1[15:0]} = $signed(multiplier[7:0]) * $signed(multiplicand[7:0]);
-          {reg_result_tmp_1[7:4],reg_result_tmp_1[31:16]} = $signed(multiplier[15:8]) * $signed(multiplicand[15:8]);
+          {reg_result_tmp_1[35:32],reg_result_tmp_1[15:0]} = $signed(multiplier[7:0]) * $signed(multiplicand[7:0]);
+          {reg_result_tmp_1[39:36],reg_result_tmp_1[31:16]} = $signed(multiplier[15:8]) * $signed(multiplicand[15:8]);
         end
         3'b110: begin
-          {reg_result_tmp_1[3:0],reg_result_tmp_1[15:0]} = $signed({reg_result_tmp_2[3:0],reg_result_tmp_2[15:0]}) + ($signed(multiplier[7:0]) * $signed(multiplicand[7:0]));
-          {reg_result_tmp_1[7:4],reg_result_tmp_1[31:16]} = $signed({reg_result_tmp_2[7:4],reg_result_tmp_2[31:16]}) + ($signed(multiplier[15:8]) * $signed(multiplicand[15:8]));
+          {reg_result_tmp_1[35:32],reg_result_tmp_1[15:0]} = $signed({reg_result_tmp_2[35:32],reg_result_tmp_2[15:0]}) + ($signed(multiplier[7:0]) * $signed(multiplicand[7:0]));
+          {reg_result_tmp_1[39:36],reg_result_tmp_1[31:16]} = $signed({reg_result_tmp_2[39:36],reg_result_tmp_2[31:16]}) + ($signed(multiplier[15:8]) * $signed(multiplicand[15:8]));
         end
         3'b111: begin
-          if ({reg_result_tmp_2[3:0],reg_result_tmp_2[15:0]} > $signed(20'h07FFF))
-            reg_result_tmp_1 = {protect[3:0],16'h7FFF};
-          else if ({reg_result_tmp_2[3:0],reg_result_tmp_2[15:0]} < $signed(20'hF8000))
-            reg_result_tmp_1 = {protect[3:0],16'h8000};
+          if ($signed({reg_result_tmp_2[35:32],reg_result_tmp_2[15:0]}) > $signed(20'h07FFF))
+            {reg_result_tmp_1[35:32],reg_result_tmp_1[15:0]} = {protect[3:0],16'h7FFF};
+          else if ($signed({reg_result_tmp_2[35:32],reg_result_tmp_2[15:0]}) < $signed(20'hF8000))
+            {reg_result_tmp_1[35:32],reg_result_tmp_1[15:0]} = {protect[3:0],16'h8000};
           else
-            reg_result_tmp_1 = reg_result_tmp_2;
+            {reg_result_tmp_1[35:32],reg_result_tmp_1[15:0]} = {reg_result_tmp_2[35:32],reg_result_tmp_2[15:0]};
 
-          if ({reg_result_tmp_2[7:4],reg_result_tmp_2[31:16]} > $signed(20'h07FFF))
-            reg_result_tmp_1 = {protect[7:4],16'h7FFF};
-          else if ({reg_result_tmp_2[7:4],reg_result_tmp_2[31:16]} < $signed(20'hF8000))
-            reg_result_tmp_1 = {protect[7:4],16'h8000};
+          if ($signed({reg_result_tmp_2[39:36],reg_result_tmp_2[31:16]}) > $signed(20'h07FFF))
+            {reg_result_tmp_1[39:36],reg_result_tmp_1[31:16]} = {protect[7:4],16'h7FFF};
+          else if ($signed({reg_result_tmp_2[39:36],reg_result_tmp_2[31:16]}) < $signed(20'hF8000))
+            {reg_result_tmp_1[39:36],reg_result_tmp_1[31:16]} = {protect[7:4],16'h8000};
           else
-            reg_result_tmp_1 = reg_result_tmp_2;
+            {reg_result_tmp_1[39:36],reg_result_tmp_1[31:16]} = {reg_result_tmp_2[39:36],reg_result_tmp_2[31:16]};
         end
       endcase
     end else begin
