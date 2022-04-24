@@ -14,43 +14,40 @@ output reg [7:0] protect;
 reg signed [39:0] product_16;
 reg signed [19:0] product_8_1;
 reg signed [19:0] product_8_2;
-reg [2:0] reg_instruction;
+reg [2:0] pre_ins;
 
 reg [39:0] pipe_1;
 reg [39:0] pipe_2;
 
-  // always@(negedge clk or negedge reset_n) begin
-  //   if(~reset_n) begin
-  //     product_16 <= 39'b0;
-  //     product_8_1 <= 19'b0;
-  //     product_8_2 <= 19'b0;
-  //     pipe_1 <= 42'b0;
-  //     pipe_2 <= 42'b0;
-  //     result <= 32'b0;
-  //     protect <= 8'b0;
-  //   end else begin
-  //     pipe_2 <= pipe_1;
-  //     {protect,result} <= pipe_2[39:0];
-  //   end
-  // end
-
   always@(negedge clk or negedge reset_n) begin
-    if(~reset_n)
-      reg_instruction = 3'b0;
-    else
-      reg_instruction <= instruction;
+    if(~reset_n) begin
+      product_16 <= 39'b0;
+      product_8_1 <= 19'b0;
+      product_8_2 <= 19'b0;
+      pipe_1 <= 42'b0;
+      pipe_2 <= 42'b0;
+      result <= 32'b0;
+      protect <= 8'b0;
+    end else begin
+      pipe_2 <= pipe_1;
+      {protect,result} <= pipe_2[39:0];
+    end
   end
 
-  // always@(instruction) begin
-  //   product_16 <= multiplier * multiplicand;
-  //   product_8_1 <= $signed(multiplier[7:0]) * $signed(multiplicand[7:0]);
-  //   product_8_2 <= $signed(multiplier[15:8]) * $signed(multiplicand[15:8]);
-  //   if (instruction[2] == 0)
-  //     pipe_1 <= {product_16};
-  //   else begin
-  //     pipe_1 <= {product_8_1[19:16], product_8_2[19:16], product_8_1[15:0], product_8_2[15:0]};
-  //   end; 
-  // end
+  always@(posedge clk) begin
+    pre_ins <= instruction;
+  end
+
+  always@(pre_ins) begin
+    product_16 <= multiplier * multiplicand;
+    product_8_1 <= $signed(multiplier[7:0]) * $signed(multiplicand[7:0]);
+    product_8_2 <= $signed(multiplier[15:8]) * $signed(multiplicand[15:8]);
+    if (pre_ins[2] == 0)
+      pipe_1 <= {product_16};
+    else begin
+      pipe_1 <= {product_8_1[19:16], product_8_2[19:16], product_8_1[15:0], product_8_2[15:0]};
+    end; 
+  end
 
 
   // always@(negedge clk or negedge reset_n) begin
