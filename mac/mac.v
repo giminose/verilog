@@ -11,42 +11,62 @@ output reg [7:0] protect;
 // reg signed [39:0] reg_result_tmp_2;
 // reg signed [39:0] reg_stall;
 
-reg signed [39:0] product_16;
-reg signed [19:0] product_8_1;
-reg signed [19:0] product_8_2;
-reg [2:0] pre_ins;
+reg signed [39:0] product16;
+reg signed [19:0] product81;
+reg signed [19:0] product82;
+reg [2:0] curIns;
+reg [2:0] preIns;
 
-reg [39:0] pipe_1;
-reg [39:0] pipe_2;
+reg [39:0] pipe1;
+reg [39:0] pipe2;
 
-  always@(negedge clk or negedge reset_n) begin
+  always@(posedge clk or negedge reset_n) begin
     if(~reset_n) begin
-      product_16 <= 39'b0;
-      product_8_1 <= 19'b0;
-      product_8_2 <= 19'b0;
-      pipe_1 <= 42'b0;
-      pipe_2 <= 42'b0;
+      product16 <= 40'b0;
+      product81 <= 20'b0;
+      product82 <= 20'b0;
+      pipe1 <= 40'b0;
+      pipe2 <= 40'b0;
       result <= 32'b0;
       protect <= 8'b0;
     end else begin
-      pipe_2 <= pipe_1;
-      {protect,result} <= pipe_2[39:0];
+      product16 <= multiplier * multiplicand;
+      product81 <= $signed(multiplier[7:0]) * $signed(multiplicand[7:0]);
+      product82 <= $signed(multiplier[15:8]) * $signed(multiplicand[15:8]);
+      curIns <= instruction;
+      preIns <= curIns;
+      {protect,result} <= pipe2;
     end
   end
 
-  always@(posedge clk) begin
-    pre_ins <= instruction;
+  always@(*) begin
+    if (preIns[2] == 0)
+      pipe1 <= product16;
+    else begin
+      pipe1 <= {product81[19:16], product82[19:16], product81[15:0], product82[15:0]};
+    end;
   end
 
-  always@(pre_ins) begin
-    product_16 <= multiplier * multiplicand;
-    product_8_1 <= $signed(multiplier[7:0]) * $signed(multiplicand[7:0]);
-    product_8_2 <= $signed(multiplier[15:8]) * $signed(multiplicand[15:8]);
-    if (pre_ins[2] == 0)
-      pipe_1 <= {product_16};
-    else begin
-      pipe_1 <= {product_8_1[19:16], product_8_2[19:16], product_8_1[15:0], product_8_2[15:0]};
-    end; 
+  always@(*) begin
+    case(preIns[1:0])
+      2'b00: begin
+        pipe2 = 40'b0;
+      end
+      2'b01: begin
+        pipe2 = pipe1;
+      end
+      2'b10: begin
+        pipe2 = pipe2 + pipe1;
+      end
+      2'b11: begin
+        if (pipe2 > $signed(40'h007FFFFFFF))
+          pipe2 = {protect,32'h7FFFFFFF};
+        else if (pipe2 < $signed(40'hFF80000000))
+          pipe2 = {protect,32'h80000000};
+        else
+          pipe2 = pipe2;
+      end
+    endcase
   end
 
 
